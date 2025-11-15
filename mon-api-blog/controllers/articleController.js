@@ -1,19 +1,25 @@
+const Article = require('../models/article');
+
 const apiTest =  (req, res) => {
     res.status(200).json({ message: 'Welcome to my Blog!' }) 
 }
 
 
-const apiArticleCreate = (req, res) => {
-    if (!req.body || Object.keys(req.body).length === 0) {
-        return res.status(400).json({ message: 'Le corps de la requête est manquant' })
+const apiArticleCreate = async (req, res) => {
+
+    if(!req.body || Object.keys(req.body).length === 0){
+         return res.status(400).json({ message: 'Le corps de la requête est manquant' })
     }
-    const {title , content, author} = req.body
-    if (!title || !content || !author) {    
-        return res.status(400).json({ message: 'Tous les champs sont requis : title, content, author' })
-    }
-    else {
-        console.log('Données reçues:', {title , content, author})
-        res.status(201).json({ message: 'Article reçu avec succès', article: { title , content, author} })
+    try{    const newArticle= new Article({
+        title: req.body.title,
+        content: req.body.content,
+        author: req.body.author
+    });
+
+    const saveArticle = await newArticle.save();
+    res.status(201).json(saveArticle);
+    } catch(err){
+        res.status(400).json({message: "Erreur lors de la création de l'article", error :err.message});
     }
 }
 
